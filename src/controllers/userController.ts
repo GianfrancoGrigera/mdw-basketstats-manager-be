@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User";
+import { sendSuccessResponse, sendErrorResponse } from "../utils/responseHandler";
 
 const registerUser = async (req: Request, res: Response) => {
     try {
@@ -7,9 +8,7 @@ const registerUser = async (req: Request, res: Response) => {
 
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({
-                message: "User already exists"
-            });
+            return sendErrorResponse(res, "User already exists", 400);
         }
 
         const user = new User({
@@ -20,28 +19,18 @@ const registerUser = async (req: Request, res: Response) => {
         });
 
         await user.save();
-        res.status(201).json({
-            user
-        });
+        sendSuccessResponse(res, "User registered successfully", { user }, null);
     } catch (error) {
-        res.status(500).json({
-            message: "Server error",
-            error: error
-        })
+        sendErrorResponse(res, "Server error", 500, error);
     }
 };
 
 const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await User.find();
-        res.status(200).json({
-            users
-        });
+        sendSuccessResponse(res, "Users retrieved successfully", { users }, null);
     } catch (error) {
-        res.status(500).json({
-            message: "Server error",
-            error: error
-        });
+        sendErrorResponse(res, "Server error", 500, error);
     }
 };
 
@@ -49,19 +38,12 @@ const getUserById = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
+            return sendErrorResponse(res, "User not found", 404);
         }
 
-        res.status(200).json({
-            user
-        });
+        sendSuccessResponse(res, "User retrieved successfully", { user }, null);
     } catch (error) {
-        res.status(500).json({
-            message: "Server error",
-            error: error
-        });
+        sendErrorResponse(res, "Server error", 500, error);
     }
 };
 
@@ -70,9 +52,7 @@ const updateUser = async (req: Request, res: Response) => {
         const { name, lastName, role } = req.body;
         const user = await User.findById(req.params.id);
         if (!user) {
-            return res.status(404).json({ 
-                message: "User not found" 
-            });
+            return sendErrorResponse(res, "User not found", 404);
         }
 
         if (name) {
@@ -84,14 +64,9 @@ const updateUser = async (req: Request, res: Response) => {
         }
 
         await user.save();
-        res.status(200).json({
-            user
-        });
+        sendSuccessResponse(res, "User updated successfully", { user }, null);
     } catch (error) {
-        res.status(500).json({ 
-            message: "Server error", 
-            error: error 
-        });
+        sendErrorResponse(res, "Server error", 500, error);
     }
 };
 
@@ -99,23 +74,15 @@ const softDeleteUser = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user || !user.isActive) {
-            return res.status(404).json({ 
-                message: "User not found" 
-            });
+            return sendErrorResponse(res, "User not found", 404);
         }
 
         user.isActive = false;
         await user.save();
 
-        res.status(200).json({
-            message: "User soft-deleted",
-            user
-        });
+        sendSuccessResponse(res, "User soft-deleted successfully", { user }, null);
     } catch (error) {
-        res.status(500).json({ 
-            message: "Server error", 
-            error: error 
-        });
+        sendErrorResponse(res, "Server error", 500, error);
     }
 };
 
@@ -123,19 +90,12 @@ const hardDeleteUser = async (req: Request, res: Response) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
         if (!user) {
-            return res.status(404).json({ 
-                message: "User not found" 
-            });
+            return sendErrorResponse(res, "User not found", 404);
         }
 
-        res.status(200).json({ 
-            message: "User permanently deleted" 
-        });
+        sendSuccessResponse(res, "User permanently deleted successfully", null, null);
     } catch (error) {
-        res.status(500).json({ 
-            message: "Server error", 
-            error: error 
-        });
+        sendErrorResponse(res, "Server Error", 500, error);
     }
 };
 
