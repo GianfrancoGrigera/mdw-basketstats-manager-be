@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import connectDB from "./config/db";
 import dotenv from "dotenv";
+import router from "./routes/routes";
 
 
 dotenv.config();
@@ -15,6 +16,6 @@ app.use(express.json());
 connectDB();
 
 // Rutas
-// app.use("/api/auth", authRoutes);
+app.use("/api", router);
 
 export default app;

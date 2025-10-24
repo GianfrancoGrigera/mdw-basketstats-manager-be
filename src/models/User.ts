@@ -6,6 +6,7 @@ export interface IUser extends Document {
     email: string;
     role: "admin" | "manager" | "user";
     isActive: boolean;
+    firebaseUid: string;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -13,7 +14,8 @@ const userSchema: Schema = new Schema<IUser>({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     role: { type: String, enum: ["admin", "manager", "user"], default: "user" },
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    firebaseUid: { type: String, required: true, unique: true },
 }, { timestamps: true });
 
 export default mongoose.model<IUser>("User", userSchema);

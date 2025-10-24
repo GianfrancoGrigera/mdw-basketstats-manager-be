@@ -1,25 +1,36 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import { sendSuccessResponse, sendErrorResponse } from "../utils/responseHandler";
+import admin from "../config/firebase";
 
 const registerUser = async (req: Request, res: Response) => {
     try {
-        const { name, lastName, email, role, firebaseUid } = req.body;
+        const { name, lastName, email, role, password } = req.body;
+
+        if (!email || !password) {
+            return sendErrorResponse(res, "Email and password are required", 400);
+        }
 
         const userExists = await User.findOne({ email });
         if (userExists) {
             return sendErrorResponse(res, "User already exists", 400);
         }
 
+        const firebaseUser = await admin.auth().createUser({
+            email,
+            password,
+        });
+
         const user = new User({
             name,
             lastName,
             email,
             role: role || "user",
+            firebaseUid: firebaseUser.uid,
         });
 
         await user.save();
-        sendSuccessResponse(res, "User registered successfully", { user }, null);
+        sendSuccessResponse(res, "User registered successfully", { user });
     } catch (error) {
         sendErrorResponse(res, "Server error", 500, error);
     }
