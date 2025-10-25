@@ -5,9 +5,7 @@ import League from "../models/League";
 
 const getTeams = async (req: Request, res: Response) => {
     try {
-        const { leagueId } = req.query;
-        const filter = leagueId ? { league: leagueId } : { };
-        const teams = await Team.find(filter).populate("league", "name");
+        const teams = await Team.find();
         sendSuccessResponse(res, "Teams retrieved successfully", { teams }, null);
     } catch (error) {
         sendErrorResponse(res, "Server error", 500, error);
@@ -16,7 +14,7 @@ const getTeams = async (req: Request, res: Response) => {
 
 const getTeamById = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const team = await Team.findById(id).populate("league", "name");
+    const team = await Team.findById(id);
     if (!team) {
         return sendErrorResponse(res, "Team not found", 404);
     }
@@ -26,18 +24,13 @@ const getTeamById = async (req: Request, res: Response) => {
 
 const createTeam = async (req: Request, res: Response) => {
     try {
-        const { name, city, coach, league } = req.body;
-
-        const leagueExists = await League.findById(league);
-        if (!leagueExists) {
-            return sendErrorResponse(res, "League not found", 404);
-        }
+        const { name, city, country, coach } = req.body;
 
         const team = new Team({
             name,
             city,
-            coach,
-            league
+            country,
+            coach
         });
         await team.save();
 
@@ -50,9 +43,9 @@ const createTeam = async (req: Request, res: Response) => {
 const updateTeam = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, city, coach, league } = req.body;
+        const { name, city, country, coach } = req.body;
 
-        const team = await Team.findByIdAndUpdate(id, { name, city, coach, league }, { new: true});
+        const team = await Team.findByIdAndUpdate(id, { name, city, country, coach }, { new: true});
         if (!team) {
             return sendErrorResponse(res, "Team not found", 404)
         }

@@ -18,12 +18,14 @@ const getLeagueById = async (req: Request, res: Response) => {
 };
   
 const createLeague = async (req: Request, res: Response) => {
-    const { name, description, type, startDate, endDate } = req.body;
+    const { name, description, type, country, season, startDate, endDate } = req.body;
     try {
         const league = new League({
             name,
             description,
             type,
+            country,
+            season,
             startDate,
             endDate
         });
@@ -38,10 +40,10 @@ const createLeague = async (req: Request, res: Response) => {
   
 const updateLeague = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, description, type, startDate, endDate } = req.body;
+    const { name, description, type, country, season, startDate, endDate } = req.body;
     
     try {
-        const league = await League.findByIdAndUpdate(id, { name, description, type, startDate, endDate }, { new: true });
+        const league = await League.findByIdAndUpdate(id, { name, description, type, country, season, startDate, endDate }, { new: true });
         if (!league) {
             return sendErrorResponse(res, "League not found", 404)
         }
